@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Screen Recorder Extension</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Extension Logo</div>
+        <div class="settings">Settings Icon</div>
+    </header>
+    <main id="main-container">
+        <div class="page" id="home-page">
+            <!-- Content for Main/Home Page -->
+            <button onclick="showRecordingPage()">Start Recording</button>
+            <!-- ...other content -->
+        </div>
+        <div class="page" id="recording-page" style="display: none;">
+            <!-- Content for Recording in Progress Page -->
+            <button onclick="showPostRecordingPage()">Stop Recording</button>
+            <!-- ...other content -->
+        </div>
+        <!-- Similarly, include other pages like post-recording and settings pages -->
+    </main>
+
+    <script>
+        function showRecordingPage() {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('recording-page').style.display = 'block';
+            // Additional logic to start recording, etc.
+        }
+
+        function showPostRecordingPage() {
+            document.getElementById('recording-page').style.display = 'none';
+            // Show Post-Recording Page and perform necessary actions
+        }
+
+        // Add similar functions for other pages and navigation
+    </script>
+</body>
+</html>

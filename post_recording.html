@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post-Recording Page</title>
+    <style>
+/* Basic Reset */
+body, h1, h2, h3, p, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Header Styles */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+/* Main Styles */
+main {
+  padding: 20px;
+}
+
+/* Button Styles */
+button {
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+}
+    </style>
+</head>
+<body>
+    <div class="page" id="post-recording-page">
+        <!-- Content for Post-Recording/Review Page -->
+        <h1>Post-Recording Page</h1>
+        <p>Recording saved successfully!</p>
+        <button onclick="goToHomePage()">Go Back to Home</button>
+    </div>
+
+    <script>
+        function goToHomePage() {
+            // Logic to navigate back to the home page or main view
+            chrome.browserAction.setPopup({ popup: "index.html" });
+        }
+    </script>
+</body>
+</html>

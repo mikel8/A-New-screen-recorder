@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Screen Recording with Camera and Audio</title>
+  <style>
+    /* CSS styles */
+    /* ... (paste the CSS code here) */
+
+    /* Style the floating controls */
+    .floating-controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background-color: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Style the video element */
+    video {
+      width: 300px;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+
+    /* Hide the download button by default */
+    #downloadBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-controls">
+    <button id="startScreenCapture">Start Screen Capture</button>
+    <button id="stopScreenCapture">Stop Screen Capture</button>
+    <button id="startCamera">Start Camera</button>
+    <button id="stopCamera">Stop Camera</button>
+    <label for="audioInputDropdown">Select Audio Input:</label>
+  <select id="audioInputDropdown"></select>
+  <label for="videoInputDropdown">Select Video Input:</label>
+  <select id="videoInputDropdown"></select>
+    <a id="downloadBtn" download="recorded-content.webm">Download Recording</a>
+  </div>
+
+  <video id="screenVideo" autoplay muted></video>
+  <video id="cameraVideo" autoplay></video>
+
+  <script>
+    let screenStream;
+    let cameraStream;
+    let mediaRecorder;
+    const recordedChunks = [];
+
+    //enumerate video devices
+
+    function populateVideoDeviceList() {
+  const videoInputDropdown = document.getElementById('videoInputDropdown');
+
+  navigator.mediaDevices.enumerateDevices()
+    .then(devices => {
+      devices.forEach(device => {
+        if (device.kind === 'videoinput') {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.text = device.label || `Camera ${videoInputDropdown.options.length + 1}`;
+          videoInputDropdown.appendChild(option);
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Error enumerating video devices:', error);
+    });
+}
+
+document.getElementById('videoInputDropdown').addEventListener('change', event => {
+  const selectedVideoDeviceId = event.target.value;
+  getUserMediaForSelectedVideoDevice(selectedVideoDeviceId);
+});
+
+function getUserMediaForSelectedVideoDevice(selectedDeviceId) {
+  if (selectedDeviceId) {
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        deviceId: { exact: selectedDeviceId }
+      },
+      audio: true // You can adjust audio settings as needed
+    })
+    .then(stream => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+      cameraStream = stream;
+      const cameraVideo = document.getElementById('cameraVideo');
+      cameraVideo.srcObject = cameraStream;
+      cameraVideo.play();
+    })
+    .catch(error => {
+      console.error('Error accessing video input:', error);
+    });
+  }
+}
+
+
+// Call the function to populate the video input dropdown
+populateVideoDeviceList();
+
+
+    // Function to enumerate devices and populate the UI with audio input options
+function populateDeviceList() {
+  const audioInputDropdown = document.getElementById('audioInputDropdown');
+
+  navigator.mediaDevices.enumerateDevices()
+    .then(devices => {
+      devices.forEach(device => {
+        if (device.kind === 'audioinput') {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.text = device.label || `Microphone ${audioInputDropdown.options.length + 1}`;
+          audioInputDropdown.appendChild(option);
+        }
+      });
+    })
+    .catch(error => {
+      console.error('Error enumerating devices:', error);
+    });
+}
+
+// Event listener for changes in the selected audio input device
+document.getElementById('audioInputDropdown').addEventListener('change', event => {
+  const selectedDeviceId = event.target.value;
+  // Use the selectedDeviceId when requesting access to audio input
+  getUserMediaForSelectedDevice(selectedDeviceId);
+});
+    // Function to request access to audio input using the selected device
+    function getUserMediaForSelectedDevice(selectedDeviceId) {
+      if (selectedDeviceId) {
+        navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: {
+            deviceId: { exact: selectedDeviceId }
+          }
+        })
+        .then(stream => {
+          if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+          }
+          cameraStream = stream;
+          const cameraVideo = document.getElementById('cameraVideo');
+          cameraVideo.srcObject = cameraStream;
+          cameraVideo.play();
+        })
+        .catch(error => {
+          console.error('Error accessing audio input:', error);
+        });
+      }
+    }
+
+    // Populate the audio input dropdown
+    populateDeviceList();
+
+    // Start screen capture
+    document.getElementById('startScreenCapture').addEventListener('click', () => {
+      navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+        .then(stream => {
+          screenStream = stream;
+          const screenVideo = document.getElementById('screenVideo');
+          screenVideo.srcObject = screenStream;
+          screenVideo.play();
+
+          mediaRecorder = new MediaRecorder(screenStream);
+          mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) {
+              recordedChunks.push(event.data);
+            }
+          };
+          mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.href = URL.createObjectURL(blob);
+            downloadBtn.style.display = 'block';
+            recordedChunks.length = 0;
+          };
+          mediaRecorder.start();
+        })
+        .catch(error => {
+          console.error('Error accessing screen capture:', error);
+        });
+    });
+
+    // Stop screen capture
+    document.getElementById('stopScreenCapture').addEventListener('click', () => {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        screenStream.getTracks().forEach(track => track.stop());
+      }
+    });
+
+    // Start camera
+    document.getElementById('startCamera').addEventListener('click', () => {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+        .then(stream => {
+          cameraStream = stream;
+          const cameraVideo = document.getElementById('cameraVideo');
+          cameraVideo.srcObject = cameraStream;
+          cameraVideo.play();
+        })
+        .catch(error => {
+          console.error('Error accessing camera and audio:', error);
+        });
+    });
+
+    // Stop camera
+    document.getElementById('stopCamera').addEventListener('click', () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    });
+  </script>
+</body>
+</html>

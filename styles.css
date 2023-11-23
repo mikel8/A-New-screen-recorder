@@ -1,0 +1,33 @@
+/* Basic Reset */
+body, h1, h2, h3, p, ul, li {
+  margin: 0;
+  padding: 0;
+}
+
+/* Header Styles */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+/* Main Styles */
+main {
+  padding: 20px;
+}
+
+/* Button Styles */
+button {
+  padding: 8px 12px;
+  margin: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+}
+
+/* Specific Page Styles */
+/* You can add specific styles for different sections of each page here */
+/* For instance, .recording-button, .audio-toggle, etc. */

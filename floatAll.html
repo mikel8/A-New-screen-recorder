@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Screen Recording, Audio, and Download Demo</title>
+  <style>
+    /* CSS styles */
+    /* ... (paste the CSS code here) */
+
+    /* Style the floating controls */
+    .floating-controls {
+      position: fixed; /* Positions the element relative to the browser window */
+      top: 20px; /* Adjust the top position */
+      left: 20px; /* Adjust the left position */
+      z-index: 1000; /* Ensures it appears above other elements */
+      background-color: #fff; /* Background color */
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Style the video element */
+    video {
+      width: 300px;
+      height: 200px;
+    }
+
+    /* Hide the download button by default */
+    #downloadBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-controls" id="draggableControls">
+    <button id="startBtn">Start Screen Capture</button>
+    <button id="startCameraBtn">Start Camera</button>
+    <button id="stopCameraBtn">Stop Camera</button>
+    <button id="stopCaptureBtn">Stop Capture</button>
+    <a id="downloadBtn" download="screen-recording.webm">Download Recording</a>
+    <video id="cameraFeed" autoplay muted></video>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script>
+    $(function() {
+      $("#draggableControls").draggable(); // Make the control bar draggable
+
+      let screenStream;
+      let cameraStream;
+      let mediaRecorder;
+      const recordedChunks = [];
+
+      $('#startBtn').click(function() {
+  navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+    .then(stream => {
+      screenStream = stream;
+      const videoElement = document.createElement('video');
+      videoElement.srcObject = screenStream;
+      videoElement.autoplay = true;
+      document.body.appendChild(videoElement);
+      mediaRecorder = new MediaRecorder(screenStream, { mimeType: 'video/webm; codecs=vp9,opus' });
+
+            mediaRecorder.ondataavailable = event => {
+              if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+              }
+            };
+
+            mediaRecorder.onstop = () => {
+              const blob = new Blob(recordedChunks, { type: 'video/webm' });
+              const url = URL.createObjectURL(blob);
+              const downloadBtn = document.getElementById('downloadBtn');
+              downloadBtn.href = url;
+              downloadBtn.style.display = 'inline-block';
+              recordedChunks.length = 0;
+            };
+            mediaRecorder.start();
+          })
+          .catch(error => {
+            console.error('Error accessing screen capture:', error);
+          });
+      });
+
+      $('#startCameraBtn').click(function() {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+          .then(stream => {
+            cameraStream = stream;
+            const videoElement = document.getElementById('cameraFeed');
+            videoElement.srcObject = cameraStream;
+            videoElement.play();
+          })
+          .catch(error => {
+            console.error('Error accessing camera and audio:', error);
+          });
+      });
+
+      $('#stopCameraBtn').click(function() {
+        if (cameraStream) {
+          const tracks = cameraStream.getTracks();
+          tracks.forEach(track => track.stop());
+          cameraStream = null;
+        }
+      });
+
+      $('#stopCaptureBtn').click(function() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+        if (screenStream) {
+          const tracks = screenStream.getTracks();
+          tracks.forEach(track => track.stop());
+          screenStream = null;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+

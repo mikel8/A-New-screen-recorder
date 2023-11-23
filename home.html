@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Screen Recorder Extension</title>
+    <style>
+        /* Basic Reset */
+        body, h1, h2, h3, p, ul, li {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        /* Main Styles */
+        main {
+            padding: 20px;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Extension Logo</div>
+        <div class="settings">Settings Icon</div>
+    </header>
+    <main id="main-container">
+        <div class="page" id="home-page">
+            <!-- Content for Main/Home Page -->
+            <button id="recordingButton">Start Recording</button>
+        </div>
+        <div class="page" id="recording-page" style="display: none;">
+            <!-- Content for Recording in Progress Page -->
+            <button id="stopRecordingButton">Stop Recording</button>
+        </div>
+        <div class="page" id="post-recording-page" style="display: none;">
+            <!-- Content for Post-Recording/Review Page -->
+            <button id="goBackButton">Go Back</button>
+        </div>
+        <!-- Similarly, include other pages like settings page -->
+    </main>
+    <script src="home.js" defer></script>
+</body>
+</html>
